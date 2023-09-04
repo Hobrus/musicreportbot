@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - redis
+    env_file:
+      - .env.example
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A bot worker --loglevel=info
+    restart: always
+    depends_on:
+      - redis
+    env_file:
+      - .env.example
+
+  beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A bot beat --loglevel=info
+    restart: always
+    depends_on:
+      - redis
+    env_file:
+      - .env.example
+
+  redis:
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
